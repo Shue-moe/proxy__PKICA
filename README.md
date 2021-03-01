@@ -5,7 +5,9 @@
 Для выдачи сертификатов можно использовать конфигрурационный файл `openssl.conf` который находится в системах Linux по умолчанию. Выше дан пример настройки этого файла.
 
 Команда для работы с сертификатами:    
-$ openssl command [ command_options ] [ command_arguments ]
+```bash
+	$ openssl command [ command_options ] [ command_arguments ]
+````
 
 `genrsa` — сгенерировать ключ    
 `req` — зарегестрировать сертификат    
