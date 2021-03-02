@@ -1,17 +1,17 @@
-# Интеграция прокси и выдача сертификатов
+# Proxy integration and issuance of certificates
 
-## Настройка PKI
+## PKI setup
 
-Для выдачи сертификатов можно использовать конфигрурационный файл `openssl.conf` который находится в системах Linux по умолчанию. Выше дан пример настройки этого файла.
+You can use the `openssl.conf` configuration file which is provided by default on Linux systems to issue certificates. Above is an example of setting up this file    
 
-Команда для работы с сертификатами:    
+Command for working with certificates:    
 ```bash
 	$ openssl command [ command_options ] [ command_arguments ]
 ````
 
-`genrsa` — сгенерировать ключ    
-`req` — зарегестрировать сертификат    
-`ca` — подписать сертификат    
+`genrsa` — generate key    
+`req` — register a certificate    
+`ca` — sign a certificate    
 
 genrsa:    
 	**example:**    
@@ -19,23 +19,23 @@ genrsa:
     
 req:    
 	**commans:**    
-		`-x509` — корневой сертификат    
-		`-nodes` — без шифрования    
-		`-days` — количество дней    
+		`-x509` — root certificate    
+		`-nodes` — no encryption    
+		`-days` — number of days    
 	**example:**    
 		`openssl req -new -key private.key -out cert.csr`    
     
 ca:    
 	**commands:**    
-		`-extensions` — использование расширения    
-		`-in` — какой сертификат подписать
-		`-out` — выходной файл
+		`-extensions` — using an extension    
+		`-in` — which certificate to sign
+		`-out` — output file
     
-## Интеграция proxy
+## Proxy integration
 
-В верхнюю часть конфигурационного файла прописать настройки (смотрите в докумментацию вашего DLP)    
+In the upper part of the configuration file, write the settings (see the documentation of your DLP)    
     
-Так же прописать в конфигурационный файл строки:    
+Also write the lines in the configuration file:    
     
 ```
 http_port 0.0.0.0:3128 intercept ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=16MB  cert=/etc/squid/public.pem key=/etc/squid/private.pem    
@@ -52,11 +52,11 @@ ssl_bump bump step3 all
 sslcrtd_program /usr/lib/squid/ssl_crtd -s /var/lib/ssl_db -M 16MB    
 ```
     
-Так же настроить firewall на машине с установленным proxy    
-Для просмотра нынешних настроек firewall введите команду    
+Also set up a firewall on a machine with a proxy installed    
+To view the current firewall settings, enter the command    
 `iptables-save`    
     
-Дальше следует открыть порты. Для примера взяты 2 подсети (первая (183) — старая, вторая (130) — новая)    
+Next, you should open the ports. For example, 2 subnets are taken (the first (183) is old, the second (130) is new)    
 ```bash
 # iptables -t nat -D POSTROUTING -s 192.168.183.0/24 -j MASQUERADE
 
@@ -64,34 +64,36 @@ sslcrtd_program /usr/lib/squid/ssl_crtd -s /var/lib/ssl_db -M 16MB
 
 # iptables -t nat -A PREROUTING -s 192.168.130.0/24 -p tcp -m multiport --dports 80,8080 -j REDIRECT --to-ports 3128
 
-#  iptables -t nat -D PREROUTING -s 192.168.183.0/24 -p tcp -m multiport --dports 443 -j REDIRECT --to-ports 3129
+# iptables -t nat -D PREROUTING -s 192.168.183.0/24 -p tcp -m multiport --dports 443 -j REDIRECT --to-ports 3129
 
-#  iptables -t nat -A PREROUTING -s 192.168.130.0/24 -p tcp -m multiport --dports 443 -j REDIRECT --to-ports 3129
+# iptables -t nat -A PREROUTING -s 192.168.130.0/24 -p tcp -m multiport --dports 443 -j REDIRECT --to-ports 3129
 
-#  iptables -t filter -D INPUT -s 192.168.183.0/24 -p tcp -m multiport --ports 53 -j ACCEPT
+# iptables -t filter -D INPUT -s 192.168.183.0/24 -p tcp -m multiport --ports 53 -j ACCEPT
 
-#  iptables -t filter -A INPUT -s 192.168.130.0/24 -p tcp -m multiport --ports 53 -j ACCEPT
+# iptables -t filter -A INPUT -s 192.168.130.0/24 -p tcp -m multiport --ports 53 -j ACCEPT
 
-#  iptables -t filter -D INPUT -s 192.168.183.0/24 -p udp -m multiport --ports 53 -j ACCEPT
+# iptables -t filter -D INPUT -s 192.168.183.0/24 -p udp -m multiport --ports 53 -j ACCEPT
 
-#  iptables -t filter -A INPUT -s 192.168.130.0/24 -p udp -m multiport --ports 53 -j ACCEPT
+# iptables -t filter -A INPUT -s 192.168.130.0/24 -p udp -m multiport --ports 53 -j ACCEPT
 
-#  iptables -t filter -D INPUT -s 192.168.183.0/24 -p tcp -m multiport --ports 3128 -j ACCEPT
+# iptables -t filter -D INPUT -s 192.168.183.0/24 -p tcp -m multiport --ports 3128 -j ACCEPT
 
-#  iptables -t filter -A INPUT -s 192.168.130.0/24 -p tcp -m multiport --ports 3128 -j ACCEPT
+# iptables -t filter -A INPUT -s 192.168.130.0/24 -p tcp -m multiport --ports 3128 -j ACCEPT
 
-#  iptables -t filter -D INPUT -s 192.168.183.0/24 -p tcp -m multiport --ports 3129 -j ACCEPT
+# iptables -t filter -D INPUT -s 192.168.183.0/24 -p tcp -m multiport --ports 3129 -j ACCEPT
 
-#  iptables -t filter -A INPUT -s 192.168.130.0/24 -p tcp -m multiport --ports 3129 -j ACCEPT
+# iptables -t filter -A INPUT -s 192.168.130.0/24 -p tcp -m multiport --ports 3129 -j ACCEPT
 
 # iptables -t filter -D FORWARD -s 192.168.183.0/24 -p tcp -m multiport --ports 110,5190,25,21 -j ACCEPT
 
-#  iptables -t filter -A FORWARD -s 192.168.130.0/24 -p tcp -m multiport --ports 110,5190,25,21 -j ACCEPT 
+# iptables -t filter -A FORWARD -s 192.168.130.0/24 -p tcp -m multiport --ports 110,5190,25,21 -j ACCEPT 
 
 ```
 
-Сохраните изменения:
+Save changes:
 `netfilter-persistent save`
 
 
-После того как был выписан сертификат для proxy поместить ключи (public и private) в дирректорию с настройками proxy    
+After the certificate for the proxy has been issued, place the keys (public and private) in the directory with proxy settings    
+    
+Last step: :white_check_mark: Configure icap on your DLP system
