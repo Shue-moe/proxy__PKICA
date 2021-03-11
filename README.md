@@ -21,7 +21,7 @@ req:
 	**commans:**    
 		`-x509` — root certificate    
 		`-nodes` — no encryption    
-		`-days` — number of days
+		`-days` — number of days    
 		`-key` — key    
 		`-out` — save cert    
 	**example:**    
@@ -114,3 +114,27 @@ Save changes:
 After the certificate for the proxy has been issued, place the keys (public and private) in the directory with proxy settings    
     
 Last step: :white_check_mark: Configure icap on your DLP system
+
+## Mail
+submission inet n       -       n       -       -       smtpd
+  -o syslog_name=postfix/tm-srv
+  -o smtp_tls_security_level=encrypt
+  -o smtpd_sasl_auth_enable=yes
+  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+  -o content_filter=smtp:192.168.183.14:25
+
+2001  inet  n  -  n  -  -  smtpd
+  -o syslog_name=postfix/tm-node
+\# -o smtp_tls_security_level=encrypt
+  -o smtpd_sasl_auth_enable=yes
+  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+  -o content_filter=smtp:192.168.183.14:25
+
+2025    inet    n       -       n       -       -       smtpd -v
+  -o content_filter=
+
+
+\# Amavisd integration.
+    
+    
+relayhost = [tm-node.demo.lab]:2025
