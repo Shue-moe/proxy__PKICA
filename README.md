@@ -21,15 +21,31 @@ req:
 	**commans:**    
 		`-x509` — root certificate    
 		`-nodes` — no encryption    
-		`-days` — number of days    
+		`-days` — number of days
+		`-key` — key    
+		`-out` — save cert    
 	**example:**    
 		`openssl req -new -key private.key -out cert.csr`    
     
 ca:    
 	**commands:**    
 		`-extensions` — using an extension    
-		`-in` — which certificate to sign
-		`-out` — output file
+		`-in` — which certificate to sign    
+		`-out` — output file   
+
+
+For work openssl, you need create files:    
+```
+touch index.txt    
+echo 01 > serial    
+mkdir certs crl requests newcerts    
+```
+    
+All extension:    
+v3_ca    
+v3_intermediate_ca    
+server_cert    
+usr_cert    
     
 ## Proxy integration
 
@@ -90,8 +106,6 @@ Next, you should open the ports. For example, 2 subnets are taken (the first (18
 
 ```
 
-
-([АВЕКМНОРСТУХ]{1}(0(0[1-9])|0[1-9]\d|[1-2]\d{2}|3[0-2]\d|3(3([0-2]|[4-9]))|3[4-9]\d|[4-9]\d{2})[АВЕКМНОРСТУХ]{2}(77[7]?|97|99|177|197|199|799){1})|([АВЕМНОРСТУХ](333)[АВЕКМНОРСТУХ]{2}(77[7]?|97|99|177|197|199|799))|([К](333)[АВЕКМНОРСТУХ]{2}(77|97|99|177|197|199|799))
 
 Save changes:
 `netfilter-persistent save`
