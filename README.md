@@ -116,6 +116,7 @@ After the certificate for the proxy has been issued, place the keys (public and 
 Last step: :white_check_mark: Configure icap on your DLP system
 
 ## Mail
+```
 submission inet n       -       n       -       -       smtpd
   -o syslog_name=postfix/tm-srv
   -o smtp_tls_security_level=encrypt
@@ -135,6 +136,7 @@ submission inet n       -       n       -       -       smtpd
 
 
 \# Amavisd integration.
+```    
     
     
 relayhost = [tm-node.demo.lab]:2025
